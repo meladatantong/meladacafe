@@ -1,0 +1,37 @@
+name: Deploy Static Website to GitHub Pages
+
+# 1. กำหนด Trigger: ให้ทำงานเมื่อมีการ Push โค้ดลง Branch main
+on:
+  push:
+    branches:
+      - main
+
+# 2. กำหนดสิทธิ์ของระบบใน Repository
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 3. กำหนดภาระงาน (Job)
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # สั่งเปิด Cloud VM ระบบ Ubuntu
+    steps:
+      # ขั้นตอนที่ A: ดึงโค้ดล่าสุดจาก Repository มาลงเครื่อง VM
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ขั้นตอนที่ B: ตั้งค่าสภาพแวดล้อม GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # ขั้นตอนที่ C: รวบรวมไฟล์สำหรับ Deploy
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # เลือกไฟล์ทั้งหมดใน Root Directory
+
+      # ขั้นตอนที่ D: นำไฟล์ไป Deploy ขึ้น Cloud Server
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
